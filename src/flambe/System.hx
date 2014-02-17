@@ -236,6 +236,8 @@ class System
         flambe.platform.flash.FlashPlatform.instance;
 #elseif html
         flambe.platform.html.HtmlPlatform.instance;
+#elseif nodejs
+        flambe.platform.nodejs.NodePlatform.instance;
 #else
         null;
 #end

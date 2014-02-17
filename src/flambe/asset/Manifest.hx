@@ -53,11 +53,17 @@ class Manifest
         }
 
         var manifest = new Manifest();
+#if !nodejs
         manifest.localBase = "assets";
+#end
 
         for (asset in packData) {
             var name = asset.name;
+#if nodejs
+            var path = asset.path;
+#else
             var path = packName + "/" + name + "?v=" + asset.md5;
+#end
 
             var format = inferFormat(name);
             if (format != Data) {

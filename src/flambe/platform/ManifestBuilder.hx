@@ -37,6 +37,9 @@ class ManifestBuilder
                             name: file,
                             md5: Context.signature(File.getBytes(path)),
                             bytes: FileSystem.stat(path).size,
+#if nodejs
+                            path: FileSystem.fullPath(path),
+#end
                         });
                     }
                 }
