@@ -20,6 +20,11 @@ class DummyTexture extends flambe.platform.BasicAsset<DummyTexture>
 		super();
 	}
 
+	public function split (tilesWide :Int, tilesHigh :Int = 1) :Array<SubTexture>
+	{
+		return [];
+	}
+
 	function get_width() :Int
 	{
 		return 0;
