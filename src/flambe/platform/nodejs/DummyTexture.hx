@@ -1,6 +1,7 @@
 package flambe.platform.nodejs;
 
 import flambe.display.Texture;
+import flambe.display.SubTexture;
 import flambe.asset.AssetEntry;
 import flambe.platform.BasicAsset;
 import haxe.io.Bytes;
@@ -41,5 +42,10 @@ class DummyTexture extends flambe.platform.BasicAsset<DummyTexture>
 
     public function writePixels (pixels :Bytes, x :Int, y :Int, sourceW :Int, sourceH :Int) :Void
     {
+    }
+
+    public function subTexture (x :Int, y :Int, width :Int, height :Int) :SubTexture
+    {
+    	return new DummySubTexture(this);
     }
 }

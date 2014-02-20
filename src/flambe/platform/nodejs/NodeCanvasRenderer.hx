@@ -25,9 +25,10 @@ class NodeCanvasRenderer
         System.hasGPU._ = false;
     }
 
-    public function createTexture (image :Dynamic) :Texture
+    public function createTexture (data :Dynamic) :Texture
     {
-        return new NodeCanvasTexture(image);
+        var root = new NodeCanvasTextureRoot(data);
+        return root.createTexture(root.width, root.height);
     }
 
     public function createEmptyTexture (width :Int, height :Int) :Texture
@@ -38,7 +39,7 @@ class NodeCanvasRenderer
         textureGraphics.setAlpha(1);
         var image = new NodeCanvasImage();
         image.src = textureGraphics.canvas.toBuffer();
-        return new NodeCanvasTexture(image);
+        return createTexture(image);
     }
 
     public function getCompressedTextureFormats () :Array<AssetFormat>
