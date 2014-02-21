@@ -29,15 +29,14 @@ class NodeAssetPackLoader extends BasicAssetPackLoader
                 var data = Node.fs.readFileSync(url);
                 var img = new NodeCanvasImage();
                 img.src = cast data;
-
                 var texture = _platform.getRenderer().createTexture(img);
                 if (texture != null) {
-                    handleLoad(entry, texture);
+                    Node.setImmediate(handleLoad.bind(entry, texture));
                 } else {
                     handleTextureError(entry);
                 }
             } else {
-                handleLoad(entry, _platform.getRenderer().createTexture(null));
+                Node.setImmediate(handleLoad.bind(entry, _platform.getRenderer().createTexture(null)));
             }
 
         case WEBP, JXR, DDS, PVR, PKM:

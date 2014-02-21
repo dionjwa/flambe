@@ -17,6 +17,8 @@ import sys.FileSystem;
 
 import js.Node;
 
+using StringTools;
+
 class NodePlatform
     implements Platform
 {
@@ -26,6 +28,8 @@ class NodePlatform
     public var isCanvasRendererEnabled (get, set) :Bool;
     public var isCanvasRendererAvailable (default, null) :Bool;
     public var renderedFramesFolder : String = 'frames';
+    public var renderedFramesPrefix : String = 'frame_';
+    public var lastFrameName : String = '_frame_last.png';
 
     private function new ()
     {
@@ -85,9 +89,16 @@ class NodePlatform
             isCanvasRendererAvailable = true;
             _isCanvasRendererEnabled = true;
 
-            if (!FileSystem.exists("frames")) {
-                FileSystem.createDirectory("frames");
+            if (!FileSystem.exists(renderedFramesFolder)) {
+                FileSystem.createDirectory(renderedFramesFolder);
             }
+
+            for (file in FileSystem.readDirectory(renderedFramesFolder)) {
+                if (file.startsWith(renderedFramesPrefix)){// || file == lastFrameName) {
+                    FileSystem.deleteFile(FileSystem.join(renderedFramesFolder, file));
+                }
+            }
+
             Log.info("Using node canvas");
         } catch(e :Dynamic) {
             Log.info("node canvas not found, ignoring the renderer");
@@ -161,16 +172,16 @@ class NodePlatform
         //Maybe render the frames
         if (isCanvasRendererEnabled) {
             var canvasRenderer :NodeCanvasRenderer = cast _renderer;
-            var outputPngFileName = Node.path.join(renderedFramesFolder, "frame_" + canvasRenderer.frame + ".png");
+            var outputPngFileName = Node.path.join(renderedFramesFolder, renderedFramesPrefix + canvasRenderer.frame + ".png");
             Log.info("rendering " + outputPngFileName);
             Node.fs.writeFileSync(outputPngFileName,
                 cast(canvasRenderer.graphics, flambe.platform.nodejs.NodeCanvasGraphics).canvas.toBuffer());
 
-            var symlinkPath = Node.path.join(renderedFramesFolder, "last_frame.png");
-            if (Node.fs.existsSync(symlinkPath)) {
-                Node.fs.unlinkSync(symlinkPath);
-            }
-            Node.fs.symlinkSync("frame_" + canvasRenderer.frame + ".png", symlinkPath);
+            // var symlinkPath = Node.path.join(renderedFramesFolder, lastFrameName);
+            // if (Node.fs.existsSync(symlinkPath)) {
+            //     Node.fs.unlinkSync(symlinkPath);
+            // }
+            // Node.fs.symlinkSync(renderedFramesPrefix + canvasRenderer.frame + ".png", symlinkPath);
         }
     }
 

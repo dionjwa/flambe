@@ -26,14 +26,22 @@ class NodeCanvasTextureRoot extends BasicAsset<NodeCanvasTextureRoot>
 
     public var updateCount :Int = 0;
 
-    public function new (image :NodeCanvasImage)//, ?canvas :NodeCanvasElement)
+    public function new (image :NodeCanvasImage)
     {
         super();
         this.image = image;
+        this.width = image.width;
+        this.height = image.height;
+        Assert.that(this.image != null);
     }
 
     public function getGraphics () :Graphics
     {
+        assertNotDisposed();
+
+        if (_graphics == null) {
+            _graphics = new InternalGraphics(this);
+        }
         return _graphics;
     }
 
@@ -68,15 +76,25 @@ class NodeCanvasTextureRoot extends BasicAsset<NodeCanvasTextureRoot>
             }
         }
 
-        // // Draw the pixels, and invalidate our contents
+        // Draw the pixels, and invalidate our contents
         ctx2d.putImageData(imageData, x, y);
         dirtyContents();
     }
 
     public function createPattern (x :Int, y :Int, width :Int, height :Int) :Dynamic//CanvasPattern
     {
-        Assert.fail(); //TODO: update this for the rendering changes
-        return null;
+        var ctx2d = getContext2d();
+        var source = image;
+        if (x != 0 || y != 0 || width != this.width || height != this.height) {
+            // Create a temporary canvas if the size doesn't match this root
+            var canvas = new NodeCanvasElement(width, height);
+            var crop = canvas.getContext2d();
+            crop.globalCompositeOperation = "copy";
+            crop.drawImage(image, -x, -y);
+            source = new NodeCanvasImage();
+            source.src = canvas.toBuffer();
+        }
+        return ctx2d.createPattern(source, "repeat");
     }
 
     // Invalidates the cached patterns of all textures using this root
@@ -88,33 +106,10 @@ class NodeCanvasTextureRoot extends BasicAsset<NodeCanvasTextureRoot>
         }
     }
 
-    inline private function get_width () :Int
-    {
-        assertNotDisposed();
-
-        return this.image.width;
-    }
-
-    inline private function get_height () :Int
-    {
-        assertNotDisposed();
-
-        return this.image.height;
-    }
-
-    private function get_graphics () :NodeCanvasGraphics
-    {
-        assertNotDisposed();
-
-        if (_graphics == null) {
-            _graphics = new InternalGraphics(this);
-        }
-        return _graphics;
-    }
-
     private function getContext2d () :NodeCanvasRenderingContext2D
     {
-        return get_graphics().canvas.getContext2d();
+        getGraphics();
+        return _graphics.canvas.getContext2d();
     }
 
     override private function copyFrom (that :NodeCanvasTextureRoot)
