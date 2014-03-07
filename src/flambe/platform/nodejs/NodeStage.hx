@@ -28,8 +28,8 @@ class NodeStage
         scaleFactor = 1;
         orientation = new Value<Orientation>(null);
         fullscreen = new Value<Bool>(false);
-        _width = 100;
-        _height = 100;
+        _width = 300;
+        _height = 300;
     }
 
     public function get_width () :Int

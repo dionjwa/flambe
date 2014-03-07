@@ -19,52 +19,87 @@ import js.Node;
 
 using StringTools;
 
+enum UpdateType {
+    Immediate;
+    Timer;
+}
+
 class NodePlatform
     implements Platform
 {
     public static var instance (default, null) :NodePlatform = new NodePlatform();
 
     public var mainLoop (default, null) :MainLoop;
+    public var isRenderingEveryFrame :Bool = true;
     public var isCanvasRendererEnabled (get, set) :Bool;
     public var isCanvasRendererAvailable (default, null) :Bool;
     public var renderedFramesFolder : String = 'frames';
     public var renderedFramesPrefix : String = 'frame_';
     public var lastFrameName : String = '_frame_last.png';
+    public var updateType :UpdateType;
+    public var FPS :Int = 30;
+    private var _currentTime :Float;
 
     private function new ()
     {
         _isPaused = false;
         _isCanvasRendererEnabled = false;
         isCanvasRendererAvailable = false;
+        updateType = UpdateType.Timer;
+        _currentTime = getTime();
     }
 
     public function startMainLoop()
     {
         _isPaused = false;
-        _stepUpdateId = Node.setImmediate(tick);
+        _currentTime = getTime();
+        switch(updateType) {
+            case Timer: _stepUpdateId = Node.setTimeout(tick, Std.int(1000 / FPS));
+            case Immediate: _stepUpdateId = Node.setImmediate(tick);
+        }
     }
 
     public function stopMainLoop()
     {
         Node.clearImmediate(_stepUpdateId);
+        Node.clearTimeout(_stepUpdateId);
         _stepUpdateId = null;
         _isPaused = true;
     }
 
-    public function step(?dt :Float = 0.03)
+    public function step()
     {
-        update(_lastUpdate + dt);
+        update(1.0 / FPS);
     }
 
     function tick()
     {
-        update(_lastUpdate + 30);
-        _stepUpdateId = Node.setImmediate(tick);
+#if node_flambe_server_enabled
+        if (!_server.isConnections) {
+            _currentTime = getTime();
+            switch(updateType) {
+                case Timer:
+                    _stepUpdateId = Node.setTimeout(tick, Std.int(1000 / FPS));
+                case Immediate:
+                    _stepUpdateId = Node.setImmediate(tick);
+            }
+            return;
+        }
+#end
+        switch(updateType) {
+            case Timer:
+                var dt = getTime() - _currentTime;
+                _currentTime = getTime();
+                _stepUpdateId = Node.setTimeout(tick, Std.int(1000 / FPS));
+                update(dt);
+            case Immediate:
+                _stepUpdateId = Node.setImmediate(tick);
+                update(1.0 / FPS);
+        }
     }
 
     public function init ()
     {
-        //# sourceMappingURL=path/to/source.map
         try {
             var sourceMapSupport = Node.require('source-map-support');
             if (sourceMapSupport != null) {
@@ -94,7 +129,7 @@ class NodePlatform
             }
 
             for (file in FileSystem.readDirectory(renderedFramesFolder)) {
-                if (file.startsWith(renderedFramesPrefix)){// || file == lastFrameName) {
+                if (file.endsWith(".png")){// || file == lastFrameName) {
                     FileSystem.deleteFile(FileSystem.join(renderedFramesFolder, file));
                 }
             }
@@ -106,13 +141,18 @@ class NodePlatform
         }
         mainLoop = new MainLoop();
         _skipFrame = false;
-        _lastUpdate = haxe.Timer.stamp();
+        _lastUpdate = getTime();
 
         //Don't start the mainLoop automatically
         // startMainLoop();
 #if debug
         // _catapult = NodeCatapultClient.canUse() ? new NodeCatapultClient() : null;
 #end
+
+#if node_flambe_server_enabled
+        _server = new NodePlatformServer(this);
+#end
+
     }
 
     public function loadAssetPack (manifest :Manifest) :Promise<AssetPack>
@@ -145,7 +185,7 @@ class NodePlatform
 
     inline public function getTime () :Float
     {
-        return haxe.Timer.stamp();
+        return untyped __js__('Date.now() / 1000');
     }
 
     public function getCatapultClient ()
@@ -153,11 +193,8 @@ class NodePlatform
         return null;//_catapult;
     }
 
-    private function update (now :Float)
+    private function update (dt :Float)
     {
-        var dt = (now - _lastUpdate) / 1000;
-        _lastUpdate = now;
-
         if (System.hidden._) {
             return; // Prevent updates while hidden
         }
@@ -170,30 +207,47 @@ class NodePlatform
         mainLoop.render(_renderer);
 
         //Maybe render the frames
-        if (isCanvasRendererEnabled) {
+        if (isCanvasRendererEnabled && isRenderingEveryFrame) {
             var canvasRenderer :NodeCanvasRenderer = cast _renderer;
             var outputPngFileName = Node.path.join(renderedFramesFolder, renderedFramesPrefix + canvasRenderer.frame + ".png");
-            Log.info("rendering " + outputPngFileName);
-            Node.fs.writeFileSync(outputPngFileName,
-                cast(canvasRenderer.graphics, flambe.platform.nodejs.NodeCanvasGraphics).canvas.toBuffer());
-
-            // var symlinkPath = Node.path.join(renderedFramesFolder, lastFrameName);
-            // if (Node.fs.existsSync(symlinkPath)) {
-            //     Node.fs.unlinkSync(symlinkPath);
-            // }
-            // Node.fs.symlinkSync(renderedFramesPrefix + canvasRenderer.frame + ".png", symlinkPath);
+            renderFrame(outputPngFileName);
         }
+        var now = getTime();
+        _lastUpdate = now;
+
+#if node_flambe_server_enabled
+        _server.sendCanvasBufferToClients();
+#end
+    }
+
+    public function renderFrame(fileName :String)
+    {
+        if (!isCanvasRendererEnabled) {
+            Log.error("node canvas not available");
+            return;
+        }
+        var canvasRenderer :NodeCanvasRenderer = cast _renderer;
+        if (!fileName.endsWith(".png")) {
+            fileName += ".png";
+        }
+        Log.info("rendering " + fileName);
+        Node.fs.writeFileSync(fileName,
+            cast(canvasRenderer.graphics, flambe.platform.nodejs.NodeCanvasGraphics).canvas.toBuffer());
     }
 
     public function getPointer () :PointerSystem
     {
+        if (_pointer == null) {
+            _pointer = new flambe.platform.BasicPointer();
+        }
         return _pointer;
     }
 
     public function getMouse () :MouseSystem
     {
         if (_mouse == null) {
-            _mouse = new flambe.platform.DummyMouse();
+            getPointer();
+            _mouse = new flambe.platform.BasicMouse(_pointer);
         }
         return _mouse;
     }
@@ -277,8 +331,11 @@ class NodePlatform
     private var _isPaused :Bool;
     private var _stepUpdateId :Dynamic;
 
-
     private var _isCanvasRendererEnabled :Bool;
+
+#if node_flambe_server_enabled
+    private var _server :NodePlatformServer;
+#end
     //Catapult client is not really needed for headless clients?
     // private var _catapult :NodeCatapultClient;
 }
