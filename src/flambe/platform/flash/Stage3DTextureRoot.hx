@@ -13,6 +13,8 @@ import flash.geom.Rectangle;
 
 import haxe.io.Bytes;
 
+import flambe.math.FMath;
+
 class Stage3DTextureRoot extends BasicAsset<Stage3DTextureRoot>
     implements TextureRoot
 {
@@ -26,8 +28,9 @@ class Stage3DTextureRoot extends BasicAsset<Stage3DTextureRoot>
     {
         super();
         _renderer = renderer;
-        this.width = MathUtil.nextPowerOfTwo(width);
-        this.height = MathUtil.nextPowerOfTwo(height);
+        // 1 px textures cause weird DrawPattern sampling on some drivers
+        this.width = FMath.max(2, MathUtil.nextPowerOfTwo(width));
+        this.height = FMath.max(2, MathUtil.nextPowerOfTwo(height));
     }
 
     public function init (context3D :Context3D, optimizeForRenderToTexture :Bool)
@@ -110,7 +113,7 @@ class Stage3DTextureRoot extends BasicAsset<Stage3DTextureRoot>
         } else {
             // Since there's no way to update a texture's subregion in Stage3D, create a temporary
             // texture and draw it to this one at the right position
-            var temp = _renderer.createEmptyTexture(sourceW, sourceH);
+            var temp = _renderer.createTexture(sourceW, sourceH);
             temp.root.nativeTexture.uploadFromBitmapData(bitmapData);
             drawTexture(temp, x, y, 0, 0, sourceW, sourceH);
             temp.dispose();
@@ -162,7 +165,7 @@ class Stage3DTextureRoot extends BasicAsset<Stage3DTextureRoot>
         ]));
         ortho.transformVectors(scratch, scratch);
 
-        var offset = _renderer.batcher.prepareDrawImage(this, Copy, null, source);
+        var offset = _renderer.batcher.prepareDrawTexture(this, Copy, null, source);
         var data = _renderer.batcher.data;
         var u1 = (source.rootX+sourceX) / source.root.width;
         var v1 = (source.rootY+sourceY) / source.root.height;
