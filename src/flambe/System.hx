@@ -86,6 +86,8 @@ class System
     public static var renderer (get, null) :RendererSystem<
 #if flash
         flash.display.BitmapData
+#elseif nodejs
+        Dynamic
 #elseif js
         js.html.Element
 #end

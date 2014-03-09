@@ -27,16 +27,16 @@ class NodeAssetPackLoader extends BasicAssetPackLoader
         case PNG, JPG, GIF:
             if (NodePlatform.instance.isCanvasRendererAvailable) {
                 var data = Node.fs.readFileSync(url);
-                var img = new NodeCanvasImage();
-                img.src = cast data;
-                var texture = _platform.getRenderer().createTexture(img);
+                var image = new NodeCanvasImage();
+                image.src = cast data;
+                var texture = _platform.getRenderer().createTextureFromImage(image);
                 if (texture != null) {
                     Node.setImmediate(handleLoad.bind(entry, texture));
                 } else {
                     handleTextureError(entry);
                 }
             } else {
-                Node.setImmediate(handleLoad.bind(entry, _platform.getRenderer().createTexture(null)));
+                Node.setImmediate(handleLoad.bind(entry, _platform.getRenderer().createTexture(0, 0)));
             }
 
         case WEBP, JXR, DDS, PVR, PKM:

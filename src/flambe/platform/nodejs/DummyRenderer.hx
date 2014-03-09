@@ -2,25 +2,30 @@ package flambe.platform.nodejs;
 
 import flambe.display.Texture;
 import flambe.asset.AssetEntry;
-import haxe.io.Bytes;
+import flambe.platform.InternalRenderer;
+import flambe.subsystem.RendererSystem;
 import flambe.display.Graphics;
-import flambe.platform.Renderer;
+import flambe.util.Value;
+
+import haxe.io.Bytes;
 
 class DummyRenderer
-	implements Renderer
+	implements InternalRenderer<Dynamic>
 {
 	public var graphics :InternalGraphics;
+    public var type (get, null) :RendererType;
+    public var hasGPU (get, null) :Value<Bool>;
 
 	public function new() {}
 
-    public function createTexture (data :Dynamic) :Texture
+    public function createTexture (width :Int, height :Int) :Texture
     {
     	return new DummyTexture();
     }
 
-    public function createEmptyTexture (width :Int, height :Int) :Texture
+    public function createTextureFromImage (image :Dynamic) :Texture
     {
-    	return new DummyTexture();
+        return new DummyTexture();
     }
 
     public function getCompressedTextureFormats () :Array<AssetFormat>
@@ -48,5 +53,15 @@ class DummyRenderer
 
     public function onResize (width :Int, height :Int) :Void
     {
+    }
+
+    function get_type():RendererType
+    {
+        return null;
+    }
+
+    function get_hasGPU() :Value<Bool>
+    {
+        return null;
     }
 }

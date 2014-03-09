@@ -30,6 +30,8 @@ class NodePlatform
     public static var instance (default, null) :NodePlatform = new NodePlatform();
 
     public var mainLoop (default, null) :MainLoop;
+    public var musicPlaying :Bool;
+
     public var isRenderingEveryFrame :Bool = true;
     public var isCanvasRendererEnabled (get, set) :Bool;
     public var isCanvasRendererAvailable (default, null) :Bool;
@@ -292,7 +294,7 @@ class NodePlatform
         return _motion;
     }
 
-    public function getRenderer () :Renderer
+    public function getRenderer () :InternalRenderer<Dynamic>
     {
         return _renderer;
     }
@@ -314,7 +316,7 @@ class NodePlatform
     // Statically initialized subsystems
     private var _mouse :MouseSystem;
     private var _pointer :BasicPointer;
-    private var _renderer :Renderer;
+    private var _renderer :InternalRenderer<Dynamic>;
     private var _stage :StageSystem;
     private var _touch :TouchSystem;
 
