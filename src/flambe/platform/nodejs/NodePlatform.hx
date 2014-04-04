@@ -44,15 +44,27 @@ class NodePlatform
 
     private function new ()
     {
-        _isPaused = false;
+        _isPaused = true;
         _isCanvasRendererEnabled = false;
         isCanvasRendererAvailable = false;
         updateType = UpdateType.Timer;
         _currentTime = getTime();
+
+        try {
+            var canvas = Node.require('canvas');
+            isCanvasRendererAvailable = true;
+            isRenderingEveryFrame = false;
+        } catch (e :Dynamic){
+            isCanvasRendererAvailable = false;
+        }
     }
 
     public function startMainLoop()
     {
+        if (!_isPaused) {//Already running
+            Log.info("Already running, not starting main loop");
+            return;
+        }
         _isPaused = false;
         _currentTime = getTime();
         switch(updateType) {
@@ -77,6 +89,8 @@ class NodePlatform
     function tick()
     {
 #if node_flambe_server_enabled
+        //If we have the server enabled, but there aren't any
+        //connections, don't update until we have a connection
         if (!_server.isConnections) {
             _currentTime = getTime();
             switch(updateType) {
@@ -117,14 +131,14 @@ class NodePlatform
         }
 #end
         _stage = new NodeStage();
-        try {
+
+        if (isCanvasRendererAvailable) {
             _renderer = new NodeCanvasRenderer(_stage.width, _stage.height);
             _stage.resize.connect(function() {
                 cast(_renderer.graphics, NodeCanvasGraphics).onResize(_stage.width, _stage.height);
             });
 
-            isCanvasRendererAvailable = true;
-            _isCanvasRendererEnabled = true;
+            // _isCanvasRendererEnabled = true;
 
             if (!FileSystem.exists(renderedFramesFolder)) {
                 FileSystem.createDirectory(renderedFramesFolder);
@@ -135,9 +149,8 @@ class NodePlatform
                     FileSystem.deleteFile(FileSystem.join(renderedFramesFolder, file));
                 }
             }
-
             Log.info("Using node canvas");
-        } catch(e :Dynamic) {
+        } else {
             Log.info("node canvas not found, ignoring the renderer");
             _renderer = new DummyRenderer();
         }
@@ -145,16 +158,18 @@ class NodePlatform
         _skipFrame = false;
         _lastUpdate = getTime();
 
-        //Don't start the mainLoop automatically
-        // startMainLoop();
 #if debug
         // _catapult = NodeCatapultClient.canUse() ? new NodeCatapultClient() : null;
 #end
 
 #if node_flambe_server_enabled
-        _server = new NodePlatformServer(this);
+        if (isCanvasRendererAvailable) {
+            _server = new NodePlatformServer(this);
+            Log.info("STARTING MAIN LOOP");
+            startMainLoop();
+        } else {
+        }
 #end
-
     }
 
     public function loadAssetPack (manifest :Manifest) :Promise<AssetPack>

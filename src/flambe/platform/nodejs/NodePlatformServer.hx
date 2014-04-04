@@ -160,7 +160,7 @@ class NodePlatformServer
 		canvas.id     = "FlambeCanvas";
 		canvas.width  = 300;
 		canvas.height = 300;
-		canvas.style.borderWidth="0px";
+		canvas.style.borderWidth="1px";
 
 		//Reconnecting websocket for communication
 		var connection = null;
