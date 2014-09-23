@@ -19,6 +19,15 @@ using flambe.util.Strings;
  */
 class MovieSprite extends Sprite
 {
+
+#if cocos2dx
+    /* Sub-classes override this */
+    override function createCCNode()
+    {
+        // Log.info('Creating a CCNode, not one of the other things, this class=' + Type.getClassName(Type.getClass(this)));
+        return untyped cc.Cocos2dx.CCNode.create();
+    }
+#end
     /** The symbol this sprite displays. */
     public var symbol (default, null) :MovieSymbol;
 
@@ -46,6 +55,7 @@ class MovieSprite extends Sprite
         speed = new AnimatedFloat(1);
 
         _animators = Arrays.create(symbol.layers.length);
+        trace('_animators.length=${_animators.length}');
         for (ii in 0..._animators.length) {
             var layer = symbol.layers[ii];
             _animators[ii] = new LayerAnimator(layer);
@@ -82,10 +92,14 @@ class MovieSprite extends Sprite
         for (animator in _animators) {
             owner.addChild(animator.content);
         }
+
+        var box = new flambe.display.FillSprite(0xff0000, 10, 10);
+        owner.addChild(new Entity().add(box));
     }
 
     override public function onRemoved ()
     {
+        // trace("MovieSprite.onRemoved _animators.length=" + _animators.length);
         super.onRemoved();
 
         // Detach the animator content layers so they don't get disconnected during a disposal. This
@@ -93,10 +107,12 @@ class MovieSprite extends Sprite
         for (animator in _animators) {
             owner.removeChild(animator.content);
         }
+        // trace("MovieSprite.onRemoved end");
     }
 
     override public function onUpdate (dt :Float)
     {
+        // Log.info("onUpdate");
         super.onUpdate(dt);
 
         speed.update(dt);
@@ -119,10 +135,26 @@ class MovieSprite extends Sprite
 
         var newFrame = _position*symbol.frameRate;
         goto(newFrame);
+        // Log.info("end onUpdate");
     }
+
+// #if cocos2dx
+
+//     override function updateCocosNode() :Void
+//     {
+//         ccnode.setPositionX(x._ + getCocosOffsetX());
+//         ccnode.setPositionY(-y._ + getCocosOffsetY());
+//         ccnode.setRotationX(rotation._);
+//         ccnode.setScaleX(scaleX._);
+//         ccnode.setScaleY(scaleY._);
+//         // ccnode.setAnchorPoint(anchorX._ / getNaturalWidth(), (1 - anchorY._ / getNaturalHeight()));
+//         ccnode.setOpacity(Std.int(255*alpha._));
+//     }
+// #end
 
     private function goto (newFrame :Float)
     {
+        // Log.info("goto");
         if (_frame == newFrame) {
             return; // No change
         }
@@ -139,6 +171,7 @@ class MovieSprite extends Sprite
         }
 
         _frame = newFrame;
+        // Log.info("end goto");
     }
 
     inline private function get_position () :Float
@@ -218,6 +251,8 @@ private class LayerAnimator
                 } else {
                     _sprites[ii] = kf.symbol.createSprite();
                 }
+                //Cocos2d-x
+                _sprites[ii]._isMovieSprite = true;
             }
             content.add(_sprites[0]);
         }
@@ -225,6 +260,7 @@ private class LayerAnimator
 
     public function composeFrame (frame :Float)
     {
+        // Log.info("composeFrame");
         if (_sprites == null) {
             // TODO(bruno): Test this code path
             // Don't animate empty layers
@@ -315,7 +351,18 @@ private class LayerAnimator
         // Append the pivot
         matrix.translate(-kf.pivotX, -kf.pivotY);
 
+        // sprite.alpha._ = alpha;
+
+#if cocos2dx
+        sprite.x._ = x;
+        sprite.y._ = y;
+        sprite.scaleX._ = scaleX;
+        sprite.scaleY._ = scaleY;
+        sprite._skewX = skewX;
+        sprite._skewY = skewY;
         sprite.alpha._ = alpha;
+#end
+        // Log.info("end composeFrame");
     }
 
     // The sprite to show at each keyframe index, or null if this layer has no symbol instances

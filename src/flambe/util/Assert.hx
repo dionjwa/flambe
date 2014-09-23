@@ -40,6 +40,7 @@ class Assert
         if (fields != null) {
             error = error.withFields(fields);
         }
+        Log.error(error);
         throw error;
     }
 

@@ -44,6 +44,9 @@ class Manifest
      */
     public static function fromAssets (packName :String, required :Bool = true) :Manifest
     {
+        // Log.info("fromAssets");
+        // Log.info("Meta.getType(Manifest)=" + Meta.getType(Manifest));
+        // Log.info("Meta.getType(Manifest).assets=" + Meta.getType(Manifest).assets);
         var packData :Array<Dynamic> = Reflect.field(Meta.getType(Manifest).assets[0], packName);
         if (packData == null) {
             if (required) {
@@ -51,9 +54,10 @@ class Manifest
             }
             return null;
         }
+        // Log.info("packData=" + packData);
 
         var manifest = new Manifest();
-#if !nodejs
+#if !(nodejs || cocos2dx)
         manifest.localBase = "assets";
 #end
 

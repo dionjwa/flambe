@@ -433,16 +433,29 @@ class Sprite extends Component
 
     override public function onAdded ()
     {
+        // Log.info(Type.getClassName(Type.getClass(this)) + "_" + count + ".onAdded");
         if (_flags.contains(HOVERING)) {
             connectHover();
         }
+        validateCCNode();//Retained
+        // ccnode.retain();
     }
 
     override public function onRemoved ()
     {
+        // Log.info(Type.getClassName(Type.getClass(this)) + "_" + count + ".onRemoved");
         if (_hoverConnection != null) {
             _hoverConnection.dispose();
             _hoverConnection = null;
+        }
+        // ccnode.userData = null;
+        if (ccnode != null) {
+            // ccnode.autorelease();
+            // ccnode.release();
+            ccnode.removeFromParent(true);
+            
+            // trace("ccnode.refcount=" + ccnode.getReferenceCount());
+            ccnode = null;
         }
     }
 
@@ -456,7 +469,65 @@ class Sprite extends Component
         alpha.update(dt);
         anchorX.update(dt);
         anchorY.update(dt);
+
+#if cocos2dx
+        validateCCNode();
+        updateCocosNode();
+#end
     }
+
+#if cocos2dx
+
+    public var _isMovieSprite :Bool = false;
+    public var _skewX :Float = 0;
+    public var _skewY :Float = 0;
+    inline function updateCocosNode() :Void
+    {
+        if (_isMovieSprite) {
+            ccnode.setPositionX(x._ + getCocosOffsetX());
+            ccnode.setPositionY(-y._ + getCocosOffsetY());
+            ccnode.setRotationSkewX(_skewX / 0.017453292519943295);
+            ccnode.setRotationSkewY(_skewY / 0.017453292519943295);
+            ccnode.setScaleX(scaleX._);
+            ccnode.setScaleY(scaleY._);
+            ccnode.setOpacity(Std.int(255*alpha._));
+            untyped ccnode._setAnchorX(anchorX._ / getNaturalWidth());
+            untyped ccnode._setAnchorY(1 - anchorY._ / getNaturalHeight());
+        } else {
+            ccnode.setPositionX(x._ + getCocosOffsetX());
+            ccnode.setPositionY(-y._ + getCocosOffsetY());
+            ccnode.setRotation(rotation._);
+            ccnode.setScaleX(scaleX._);
+            ccnode.setScaleY(scaleY._);
+            // ccnode.setAnchorPoint(anchorX._ / getNaturalWidth(), (1 - anchorY._ / getNaturalHeight()));
+            ccnode.setOpacity(Std.int(255*alpha._));
+        }
+        if (ccnode.isVisible() != this.visible) {
+            ccnode.setVisible(this.visible);
+        }
+
+        // ccnode.setOpacity(255);
+        // ccnode.setVisible(true);
+    }
+    public function getCocosOffsetX() :Float
+    {
+        var parentSprite = getParentSprite();
+        return parentSprite != null ? parentSprite.getCocosChildrenOffsetX() : 0;
+    }
+    public function getCocosOffsetY() :Float
+    {
+        var parentSprite = getParentSprite();
+        return parentSprite != null ? parentSprite.getCocosChildrenOffsetY() : 0;
+    }
+    public function getCocosChildrenOffsetX() :Float
+    {
+        return anchorX._;
+    }
+    public function getCocosChildrenOffsetY() :Float
+    {
+        return getNaturalHeight() - anchorY._;
+    }
+#end
 
     /**
      * Draws this sprite to the given Graphics.
@@ -746,4 +817,55 @@ class Sprite extends Component
     private var _pointerIn :Signal1<PointerEvent>;
     private var _pointerOut :Signal1<PointerEvent>;
     private var _hoverConnection :SignalConnection;
+
+#if cocos2dx
+    public var ccnode :cc.Cocos2dx.CCNode;
+
+    /* Sub-classes override this */
+    function createCCNode()
+    {
+        Log.info('Creating a CCNode, not one of the other things, this class=' + Type.getClassName(Type.getClass(this)));
+        return cc.Cocos2dx.CCNode.create();
+    }
+
+    // public function disposeCCNode()
+    // {
+    //     Log.info('disposeCCNode');
+    //     if (ccnode != null && ccnode.getParent() != null) {
+    //         ccnode.removeFromParent(true);
+    //         ccnode = null;
+    //     }
+    // }
+
+
+    public var cocosYOffset :Float;
+    public var myYOffset :Float;
+    public static var NODE_SPRITE_MAP (default, null):Map<cc.Cocos2dx.CCNode, Sprite> = new Map();
+    public static var COUNT :Int = 1;
+    public var count :Int;
+    public function validateCCNode()
+    {
+        // Log.info("validateCCNode");
+        if (ccnode == null) {
+            cocosYOffset = 0;
+            myYOffset = 0;
+            ccnode = createCCNode();
+            count = COUNT++;
+            NODE_SPRITE_MAP[ccnode] = this;
+            // var name = Type.getClassName(Type.getClass(this));
+            // ccnode.userData = name;
+            // ccnode.setName(Type.getClassName(Type.getClass(this)));
+            ccnode.retain();
+        }
+        if (ccnode.parent == null) {
+            var parentSprite = getParentSprite();
+            if (parentSprite != null) {
+                parentSprite.ccnode.addChild(ccnode);
+                myYOffset = parentSprite.cocosYOffset;
+            } else {
+                myYOffset = 0;
+            }
+        }
+    }
+#end
 }

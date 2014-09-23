@@ -52,8 +52,46 @@ class FillSprite extends Sprite
 
     override public function onUpdate (dt :Float)
     {
-        super.onUpdate(dt);
         width.update(dt);
         height.update(dt);
+#if cocos2dx
+        cast(ccnode, cc.Cocos2dx.CCLayerColor).changeWidthAndHeight(width._, height._);
+        ccnode.setPositionY(ccnode.getPositionY() - (height._ - anchorY._));
+        var Blue = color & 255;
+        var Green = (color >> 8) & 255;
+        var Red = (color >> 16) & 255;
+        var color = cc.Cocos2dx.CC.color(Red, Green, Blue, ccnode.getOpacity());
+        cast(ccnode, cc.Cocos2dx.CCLayerColor).setColor(color);
+#end
+        super.onUpdate(dt);
     }
+
+#if cocos2dx
+    override function createCCNode()
+    {
+        var Blue = color & 255;
+        var Green = (color >> 8) & 255;
+        var Red = (color >> 16) & 255;
+        var color = cc.Cocos2dx.CC.color(Red, Green, Blue, 255);
+        return new cc.Cocos2dx.CCLayerColor(color, Std.int(width._), Std.int(height._));
+    }
+
+    override public function getCocosChildrenOffsetX() :Float
+    {
+        return anchorX._;
+    }
+    override public function getCocosChildrenOffsetY() :Float
+    {
+        return getNaturalHeight() - anchorY._;
+    }
+
+    override public function getCocosOffsetX() :Float
+    {
+        return -anchorX._ + super.getCocosOffsetX();
+    }
+    override public function getCocosOffsetY() :Float
+    {
+        return -(getNaturalHeight() - anchorY._);
+    }
+#end
 }

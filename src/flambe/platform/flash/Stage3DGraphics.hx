@@ -15,7 +15,7 @@ import flambe.display.BlendMode;
 import flambe.display.Graphics;
 import flambe.display.Texture;
 import flambe.math.FMath;
-import flambe.util.Assert;
+import flambe.util.Assert;  
 
 class Stage3DGraphics
     implements InternalGraphics

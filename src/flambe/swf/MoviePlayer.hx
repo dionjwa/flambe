@@ -29,7 +29,8 @@ class MoviePlayer extends Component
         _lib = lib;
         _root = new Entity();
         movie = new Value<MovieSprite>(null);
-        setCache(true);
+        // setCache(true);
+        setCache(false);
     }
 
     /**

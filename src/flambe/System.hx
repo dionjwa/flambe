@@ -236,6 +236,8 @@ class System
         flambe.platform.flash.FlashPlatform.instance;
 #elseif (html || firefox)
         flambe.platform.html.HtmlPlatform.instance;
+#elseif cocos2dx
+        flambe.platform.cocos2dx.CocosPlatform.instance;
 #elseif nodejs
         flambe.platform.nodejs.NodePlatform.instance;
 #else

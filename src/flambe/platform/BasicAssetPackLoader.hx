@@ -50,10 +50,12 @@ class BasicAssetPackLoader
 
             // Load the most suitable asset from each group
             _assetsRemaining = groups.count();
+
             for (group in groups) {
                 pickBestEntry(group, function (bestEntry :AssetEntry) {
                     if (bestEntry != null) {
                         var url = manifest.getFullURL(bestEntry);
+                        Log.info('getFullUrl $url');
                         try {
                             loadEntry(url, bestEntry);
                         } catch (error :Dynamic) {
@@ -74,6 +76,7 @@ class BasicAssetPackLoader
                 });
             }
         }
+        Log.info("done entries.length=" + entries.length);
 
 #if debug
         var catapult = _platform.getCatapultClient();
@@ -81,6 +84,7 @@ class BasicAssetPackLoader
             catapult.add(this);
         }
 #end
+        Log.info("finsihed new in BasicAssetPackLoader");
     }
 
     /** Reload any asset that matches this URL (ignoring the ?v= query param). */
@@ -142,7 +146,6 @@ class BasicAssetPackLoader
             }
             fn(null); // This asset is not supported, we're boned
         };
-
         getAssetFormats(onFormatsAvailable);
     }
 

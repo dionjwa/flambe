@@ -14,6 +14,17 @@ class ImageSprite extends Sprite
      */
     public var texture :Texture;
 
+    override public function createCCNode()
+    {
+        // Log.info("ImageSprite.createCCNode");
+        var spriteFrameTexture :flambe.platform.cocos2dx.CocosSpriteFrameTexture = cast texture;
+        // Log.info("spriteFrameTexture=" + spriteFrameTexture);
+        cocosYOffset = spriteFrameTexture.height;
+        // Log.info("spriteFrameTexture.spriteFrame=" + spriteFrameTexture.spriteFrame);
+        // var spriteFrame = spriteFrameTexture.get_spriteFrame();
+        return cc.Cocos2dx.CCSprite.create(spriteFrameTexture.spriteFrame);
+    }
+
     public function new (texture :Texture)
     {
         super();
