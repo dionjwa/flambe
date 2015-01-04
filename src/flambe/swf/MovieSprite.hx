@@ -92,10 +92,9 @@ class MovieSprite extends Sprite
         for (animator in _animators) {
             owner.addChild(animator.content);
         }
-
-        var box = new flambe.display.FillSprite(0xff0000, 10, 10);
-        owner.addChild(new Entity().add(box));
     }
+
+    
 
     override public function onRemoved ()
     {

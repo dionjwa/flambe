@@ -55,7 +55,6 @@ class BasicAssetPackLoader
                 pickBestEntry(group, function (bestEntry :AssetEntry) {
                     if (bestEntry != null) {
                         var url = manifest.getFullURL(bestEntry);
-                        Log.info('getFullUrl $url');
                         try {
                             loadEntry(url, bestEntry);
                         } catch (error :Dynamic) {

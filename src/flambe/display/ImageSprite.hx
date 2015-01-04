@@ -22,7 +22,11 @@ class ImageSprite extends Sprite
         cocosYOffset = spriteFrameTexture.height;
         // Log.info("spriteFrameTexture.spriteFrame=" + spriteFrameTexture.spriteFrame);
         // var spriteFrame = spriteFrameTexture.get_spriteFrame();
-        return cc.Cocos2dx.CCSprite.create(spriteFrameTexture.spriteFrame);
+        var sprite = cc.Cocos2dx.CCSprite.create(spriteFrameTexture.spriteFrame);
+        // if (sprite != null) {
+        //     flambe.platform.cocos2dx.CocosTools.setBlendMode(sprite, blendMode);
+        // }
+        return sprite;
     }
 
     public function new (texture :Texture)
@@ -46,5 +50,20 @@ class ImageSprite extends Sprite
     override public function getNaturalHeight () :Float
     {
         return (texture != null) ? texture.height : 0;
+    }
+
+    /**
+     * Chainable convenience method to set the blendMode.
+     * @returns This instance, for chaining.
+     */
+    override public function setBlendMode (blendMode :BlendMode) :Sprite
+    {
+        if (this.blendMode != blendMode) {
+            this.blendMode = blendMode;
+            if (ccnode != null) {
+                flambe.platform.cocos2dx.CocosTools.setBlendMode(cast ccnode, blendMode);
+            }
+        }
+        return this;
     }
 }

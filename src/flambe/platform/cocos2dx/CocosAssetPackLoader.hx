@@ -45,6 +45,10 @@ class CocosAssetPackLoader extends BasicAssetPackLoader
                             function(md5 :String) {
                                 Log.info('fileMd5 md5=$md5 url=$url fileNameInWritablePath=$fileNameInWritablePath entry=${haxe.Json.stringify(entry)}');
                                 if (md5 != remoteMd5) {
+                                	//Android only. Move to native side
+                                	if (!url.startsWith("http")) {
+                                		url = "http://" + url;
+                                	}
                                     NativeDispatcher.downloadFile(url, fileNameInWritablePath,
                                         function(err :Dynamic, downloadedPath :String) {
                                             if (err == null) {

@@ -97,6 +97,10 @@ extern class CCSprite extends CCNode
 	// public static function initWithTexture (texture :CCTexture2D, rect :CCRect) :CCSprite;
 	public static function create (spriteFrame :CCSpriteFrame) :CCSprite;
 	public var textureAtlas :Dynamic;
+	//{src: cc.BLEND_SRC, dst: cc.BLEND_DST};
+	//src=cc.SRC_ALPHA
+	//dst=cc.ONE,cc.BLEND_SRC, cc.BLEND_DST
+	public function setBlendFunc(src :Dynamic, dst :Dynamic) :Void;
 }
 
 @:native("cc.Node")

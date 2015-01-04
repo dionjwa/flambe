@@ -437,8 +437,10 @@ class Sprite extends Component
         if (_flags.contains(HOVERING)) {
             connectHover();
         }
+#if cocos2dx
         validateCCNode();//Retained
         // ccnode.retain();
+#end
     }
 
     override public function onRemoved ()
@@ -448,15 +450,16 @@ class Sprite extends Component
             _hoverConnection.dispose();
             _hoverConnection = null;
         }
+#if cocos2dx
         // ccnode.userData = null;
         if (ccnode != null) {
             // ccnode.autorelease();
             // ccnode.release();
             ccnode.removeFromParent(true);
-            
             // trace("ccnode.refcount=" + ccnode.getReferenceCount());
             ccnode = null;
         }
+#end
     }
 
     override public function onUpdate (dt :Float)

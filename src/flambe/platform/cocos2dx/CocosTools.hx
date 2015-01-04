@@ -4,9 +4,31 @@ import cc.Cocos2dx;
 
 import flambe.display.Sprite;
 import flambe.display.ImageSprite;
+import flambe.display.BlendMode;
 
 class CocosTools
 {
+	public static function setBlendMode(sprite :CCSprite, blendMode :BlendMode) :Void
+	{
+		if (blendMode != null) {
+            switch(blendMode) {
+                case Normal:
+                    untyped sprite.setBlendFunc(untyped cc.BLEND_SRC, untyped cc.BLEND_DST);
+                case Add:
+                	Log.error("BlendMode.Mask not implemented.");
+                	untyped sprite.setBlendFunc(untyped cc.BLEND_SRC, untyped cc.BLEND_DST);
+                case Mask:
+                	Log.error("BlendMode.Mask not implemented.");
+                	untyped sprite.setBlendFunc(untyped cc.BLEND_SRC, untyped cc.BLEND_DST);
+                case Copy:
+                	Log.error("BlendMode.Mask not implemented.");
+                	untyped sprite.setBlendFunc(untyped cc.BLEND_SRC, untyped cc.BLEND_DST);
+            }
+        } else {
+            untyped sprite.setBlendFunc(untyped cc.BLEND_SRC, untyped cc.BLEND_DST);
+        }
+	}
+
 	public static function getHierarchyString(?node :CCNode, ?tabSize :Int = 0, ?stringbuf : StringBuf) :StringBuf
 	{
 		node = node == null ? CC.director.getRunningScene() : node;
