@@ -26,7 +26,7 @@ class NodeCanvasGraphics
     public function new (canvasWidth :Int, canvasHeight :Int)
     {
         _canvas = new NodeCanvasElement(canvasWidth, canvasHeight);
-        _canvasCtx = _canvas.getContext2d();
+        _canvasCtx = _canvas.getContext('2d');
     }
 
     public function save ()
@@ -171,7 +171,7 @@ class NodeCanvasGraphics
     public function onResize (width :Int, height :Int)
     {
         _canvas = new NodeCanvasElement(width, height);
-        _canvasCtx = _canvas.getContext2d();
+        _canvasCtx = _canvas.getContext('2d');
     }
 
     private function get_canvas() :NodeCanvasElement

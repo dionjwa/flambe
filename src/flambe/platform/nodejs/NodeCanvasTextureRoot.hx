@@ -88,7 +88,7 @@ class NodeCanvasTextureRoot extends BasicAsset<NodeCanvasTextureRoot>
         if (x != 0 || y != 0 || width != this.width || height != this.height) {
             // Create a temporary canvas if the size doesn't match this root
             var canvas = new NodeCanvasElement(width, height);
-            var crop = canvas.getContext2d();
+            var crop = canvas.getContext('2d');
             crop.globalCompositeOperation = "copy";
             crop.drawImage(image, -x, -y);
             source = new NodeCanvasImage();
@@ -109,7 +109,7 @@ class NodeCanvasTextureRoot extends BasicAsset<NodeCanvasTextureRoot>
     private function getContext2d () :NodeCanvasRenderingContext2D
     {
         getGraphics();
-        return _graphics.canvas.getContext2d();
+        return _graphics.canvas.getContext('2d');
     }
 
     override private function copyFrom (that :NodeCanvasTextureRoot)
@@ -135,7 +135,7 @@ private class InternalGraphics extends NodeCanvasGraphics
     public function new (renderTarget :NodeCanvasTextureRoot)
     {
         super(renderTarget.width, renderTarget.height);
-        this.canvas.getContext2d().drawImage(renderTarget.image, 0, 0);
+        this.canvas.getContext('2d').drawImage(renderTarget.image, 0, 0);
         _renderTarget = renderTarget;
     }
 

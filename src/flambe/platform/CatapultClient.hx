@@ -40,15 +40,16 @@ class CatapultClient
 
     private function onMessage (message :String)
     {
-        var message = Json.parse(message);
-        switch (message.type) {
-        case "file_changed":
-            var url = message.name + "?v=" + message.md5;
+        trace("on catapult message: " + Std.string(message));
+        var messageJson = Json.parse(message);
+        switch (messageJson.type) {
+        case "catapult.file_changed":
+            var url = messageJson.name + "?v=" + messageJson.md5;
             url = url.replace("\\", "/"); // Handle backslash paths in Windows
             for (loader in _loaders) {
                 loader.reload(url);
             }
-        case "restart":
+        case "catapult.restart":
             onRestart();
         }
     }

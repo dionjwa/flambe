@@ -55,6 +55,7 @@ class NodePlatform
             isCanvasRendererAvailable = true;
             isRenderingEveryFrame = false;
         } catch (e :Dynamic){
+            // Log.warn('Canvas is not available');
             isCanvasRendererAvailable = false;
         }
     }
@@ -132,13 +133,11 @@ class NodePlatform
 #end
         _stage = new NodeStage();
 
-        if (isCanvasRendererAvailable) {
+        if (false && isCanvasRendererAvailable) {
             _renderer = new NodeCanvasRenderer(_stage.width, _stage.height);
             _stage.resize.connect(function() {
                 cast(_renderer.graphics, NodeCanvasGraphics).onResize(_stage.width, _stage.height);
             });
-
-            // _isCanvasRendererEnabled = true;
 
             if (!FileSystem.exists(renderedFramesFolder)) {
                 FileSystem.createDirectory(renderedFramesFolder);
@@ -149,9 +148,7 @@ class NodePlatform
                     FileSystem.deleteFile(FileSystem.join(renderedFramesFolder, file));
                 }
             }
-            Log.info("Using node canvas");
         } else {
-            Log.info("node canvas not found, ignoring the renderer");
             _renderer = new DummyRenderer();
         }
         mainLoop = new MainLoop();
@@ -239,7 +236,9 @@ class NodePlatform
 
     public function renderFrame(fileName :String)
     {
-        if (!isCanvasRendererEnabled) {
+        // trace('isCanvasRendererAvailable=${isCanvasRendererAvailable}');
+        if (!isCanvasRendererAvailable) {
+            // trace('BUT isCanvasRendererAvailable=${isCanvasRendererAvailable}');
             Log.error("node canvas not available");
             return;
         }
@@ -248,6 +247,7 @@ class NodePlatform
             fileName += ".png";
         }
         Log.info("rendering " + fileName);
+        trace("rendering " + fileName);
         Node.fs.writeFileSync(fileName,
             cast(canvasRenderer.graphics, flambe.platform.nodejs.NodeCanvasGraphics).canvas.toBuffer());
     }

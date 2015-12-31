@@ -21,7 +21,7 @@ class Sine
 	public var cycles(default, null):Float;
 	/** The speed, in seconds, it takes to animate between the starting value and the ending value (or the other way around) */
 	public var speed(default, null):AnimatedFloat;
-	
+
 	/**
 	 * @param start The starting value for the animated float.
 	 * @param end The last value for the animated float.
@@ -36,22 +36,22 @@ class Sine
 		this.end = end;
 		this.cycles = cycles;
 		this.speed = new AnimatedFloat(speed);
-		
+	
 		_count = HALF_PI + offset * (FMath.PI / speed); // Start at the start value plus the seconds to offset.
 		_distance = (start - end) * .5;
 		_center = end + _distance;
 	}
-	
+
 	public function update(dt:Float):Float {
 		this.speed.update(dt);
-		_count += dt * (FMath.PI / speed._);		
+		_count += dt * (FMath.PI / speed._);	
 		return _center + Math.sin(_count) * _distance;
 	}
-	
+
 	public function isComplete():Bool {
 		return cycles > 0 && ((_count - HALF_PI) / FMath.PI) * .5 >= cycles;
 	}
-	
+
 	/** Stores the half value of PI for quicker calculations. */
 	private static inline var HALF_PI:Float = { .5 * FMath.PI; };
 	/** The number of times to animate. */

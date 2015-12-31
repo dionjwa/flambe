@@ -358,7 +358,7 @@ class Sprite extends Component
         this.y._ = y;
         return this;
     }
-	
+
     /**
      * Chainable convenience method to set the alpha.
      * @returns This instance, for chaining.
@@ -368,7 +368,7 @@ class Sprite extends Component
         this.alpha._ = alpha;
         return this;
     }
-	
+
     /**
      * Chainable convenience method to set the rotation.
      * @returns This instance, for chaining.
