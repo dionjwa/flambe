@@ -16,6 +16,8 @@ import flambe.util.Signal1;
 import sys.FileSystem;
 
 import js.Node;
+import js.node.Path;
+import js.node.Fs;
 
 using StringTools;
 
@@ -145,7 +147,7 @@ class NodePlatform
 
             for (file in FileSystem.readDirectory(renderedFramesFolder)) {
                 if (file.endsWith(".png")){// || file == lastFrameName) {
-                    FileSystem.deleteFile(FileSystem.join(renderedFramesFolder, file));
+                    FileSystem.deleteFile(Path.join(renderedFramesFolder, file));
                 }
             }
         } else {
@@ -223,7 +225,7 @@ class NodePlatform
         //Maybe render the frames
         if (isCanvasRendererEnabled && isRenderingEveryFrame) {
             var canvasRenderer :NodeCanvasRenderer = cast _renderer;
-            var outputPngFileName = Node.path.join(renderedFramesFolder, renderedFramesPrefix + canvasRenderer.frame + ".png");
+            var outputPngFileName = Path.join(renderedFramesFolder, renderedFramesPrefix + canvasRenderer.frame + ".png");
             renderFrame(outputPngFileName);
         }
         var now = getTime();
@@ -248,7 +250,7 @@ class NodePlatform
         }
         Log.info("rendering " + fileName);
         trace("rendering " + fileName);
-        Node.fs.writeFileSync(fileName,
+        Fs.writeFileSync(fileName,
             cast(canvasRenderer.graphics, flambe.platform.nodejs.NodeCanvasGraphics).canvas.toBuffer());
     }
 

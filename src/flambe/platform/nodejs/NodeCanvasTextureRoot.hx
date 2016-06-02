@@ -5,11 +5,10 @@
 package flambe.platform.nodejs;
 
 import haxe.io.Bytes;
-import js.node.NodeCanvasImage;
-import js.node.NodeCanvasElement;
-import js.node.NodeCanvasRenderingContext2D;
 
 import js.Node;
+import js.node.Buffer;
+import js.npm.NodeCanvas;
 
 import flambe.display.Graphics;
 import flambe.display.Texture;
@@ -54,8 +53,11 @@ class NodeCanvasTextureRoot extends BasicAsset<NodeCanvasTextureRoot>
     {
         assertNotDisposed();
 
-        var data :NodeBuffer = getContext2d().getImageData(x, y, width, height).data;
-        return Bytes.ofData(data);
+        var data :Buffer = getContext2d().getImageData(x, y, width, height).data;
+        // return Bytes.ofData(data);
+        // https://github.com/HaxeFoundation/hxnodejs/issues/42
+        trace('https://github.com/HaxeFoundation/hxnodejs/issues/42');
+        return null;
     }
 
     public function writePixels (pixels :Bytes, x :Int, y :Int, sourceW :Int, sourceH :Int)

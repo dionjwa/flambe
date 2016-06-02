@@ -13,7 +13,7 @@ import flambe.subsystem.RendererSystem;
 import flambe.util.Assert;
 import flambe.util.Value;
 
-import js.node.NodeCanvasImage;
+import js.npm.NodeCanvas;
 
 class NodeCanvasRenderer
     implements InternalRenderer<Dynamic>

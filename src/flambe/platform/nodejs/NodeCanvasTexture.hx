@@ -4,9 +4,7 @@
 
 package flambe.platform.nodejs;
 
-import js.node.NodeCanvasImage;
-import js.node.NodeCanvasElement;
-import js.node.NodeCanvasRenderingContext2D;
+import js.npm.NodeCanvas;
 
 import js.Node;
 

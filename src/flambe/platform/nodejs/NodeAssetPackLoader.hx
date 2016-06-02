@@ -5,7 +5,8 @@
 package flambe.platform.nodejs;
 
 import js.Node;
-import js.node.NodeCanvasImage;
+import js.node.Fs;
+import js.npm.NodeCanvas;
 
 import flambe.asset.AssetEntry;
 import flambe.asset.Manifest;
@@ -26,7 +27,7 @@ class NodeAssetPackLoader extends BasicAssetPackLoader
         switch (entry.format) {
         case PNG, JPG, GIF:
             if (NodePlatform.instance.isCanvasRendererAvailable) {
-                var data = Node.fs.readFileSync(url);
+                var data = Fs.readFileSync(url);
                 var image = new NodeCanvasImage();
                 image.src = cast data;
                 var texture = _platform.getRenderer().createTextureFromImage(image);
@@ -48,8 +49,8 @@ class NodeAssetPackLoader extends BasicAssetPackLoader
             handleLoad(entry, null);
 
         case Data:
-            var options :NodeFsFileOptions = {encoding:NodeC.UTF8, flag:'r'};
-            Node.fs.readFile(url, options, function(err, data) {
+            var options = {encoding:'utf8', flag:'r'};
+            Fs.readFile(url, options, function(err, data) {
                 if (err != null) {
                     throw "Missing file " + url;
                 }
