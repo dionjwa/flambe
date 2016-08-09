@@ -8,7 +8,7 @@ import haxe.io.Bytes;
 
 import js.Node;
 import js.node.Buffer;
-import js.npm.NodeCanvas;
+import js.npm.canvas.NodeCanvas;
 
 import flambe.display.Graphics;
 import flambe.display.Texture;

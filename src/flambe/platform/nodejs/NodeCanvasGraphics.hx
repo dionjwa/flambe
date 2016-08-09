@@ -6,7 +6,7 @@ package flambe.platform.nodejs;
 
 import js.Node;
 
-import js.npm.NodeCanvas;
+import js.npm.canvas.NodeCanvas;
 
 import flambe.display.BlendMode;
 import flambe.display.Graphics;

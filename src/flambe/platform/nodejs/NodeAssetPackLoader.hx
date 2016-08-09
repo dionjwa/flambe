@@ -6,7 +6,7 @@ package flambe.platform.nodejs;
 
 import js.Node;
 import js.node.Fs;
-import js.npm.NodeCanvas;
+import js.npm.canvas.NodeCanvas;
 
 import flambe.asset.AssetEntry;
 import flambe.asset.Manifest;

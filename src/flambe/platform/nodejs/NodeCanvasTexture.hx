@@ -4,7 +4,7 @@
 
 package flambe.platform.nodejs;
 
-import js.npm.NodeCanvas;
+import js.npm.canvas.NodeCanvas;
 
 import js.Node;
 
